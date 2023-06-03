@@ -12,14 +12,23 @@ const crearHabitacion = (req, res) => {
     equipamento
   });
 
-  nuevaHabitacion
-    .save()
-    .then((habitacion) => {
-      res.status(201).json(habitacion);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Error al crear la habitación' });
-    });
+  Habitacion.findOne({numero})
+  .then((habitacion) => {
+    if (habitacion) {
+      res.json({ error: 'Ya existe ese número de habitacion'});
+    } else {
+      nuevaHabitacion
+      .save()
+      .then((habitacion) => {
+        res.status(201).json(habitacion);
+      })
+      .catch((error) => {
+        res.status(500).json({ error: 'Error al crear la habitación' });
+      });
+    }
+  }).catch((error) => {
+    return res.status(500).json({ error: 'Error al buscar numero de habitación existente' });
+  });
 };
 
 // Controlador para obtener todas las habitaciones
@@ -57,27 +66,36 @@ const actualizarHabitacion = (req, res) => {
   const habitacionId = req.params.id;
   const { numero, tipo, disponibilidad, costoDiario, equipamento } = req.body;
 
-  Habitacion.findByIdAndUpdate(
-    habitacionId,
-    {
-      numero,
-      tipo,
-      disponibilidad,
-      costoDiario,
-      equipamento
-    },
-    { new: true }
-  )
-    .then((habitacion) => {
-      if (habitacion) {
-        res.json(habitacion);
-      } else {
-        res.status(404).json({ error: 'Habitación no encontrada' });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Error al actualizar la habitación' });
-    });
+  Habitacion.findOne({numero})
+  .then((habitacion) => {
+    if (habitacion) {
+      res.json({ error: 'Ya existe ese número de habitacion'});
+    } else {
+      Habitacion.findByIdAndUpdate(
+        habitacionId,
+        {
+          numero,
+          tipo,
+          disponibilidad,
+          costoDiario,
+          equipamento
+        },
+        { new: true }
+      )
+        .then((habitacion) => {
+          if (habitacion) {
+            res.json(habitacion);
+          } else {
+            res.status(404).json({ error: 'Habitación no encontrada' });
+          }
+        })
+        .catch((error) => {
+          res.status(500).json({ error: 'Error al actualizar la habitación' });
+        });
+    }
+  }).catch((error) => {
+    return res.status(500).json({ error: 'Error al buscar numero de habitación existente' });
+  });
 };
 
 // Controlador para eliminar una habitación

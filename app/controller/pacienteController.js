@@ -12,14 +12,23 @@ const crearPaciente = (req, res) => {
     telefono,
   });
 
-  nuevoPaciente
-    .save()
-    .then((paciente) => {
-      res.status(201).json(paciente);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Error al crear el paciente' });
-    });
+  Paciente.findOne({cedula})
+  .then((paciente) => {
+    if (paciente) {
+      res.json({ error: 'Ya existe un paciente con esa cédula'});
+    } else {
+      nuevoPaciente
+        .save()
+        .then((paciente) => {
+          res.status(201).json(paciente);
+        })
+        .catch((error) => {
+          res.status(500).json({ error: 'Error al crear el paciente' });
+        });
+    }
+  }).catch((error) => {
+    return res.status(500).json({ error: 'Error al buscar numero de cédula existente' });
+  });
 };
 
 // Controlador para obtener todos los pacientes
@@ -54,17 +63,40 @@ const actualizarPaciente = (req, res) => {
   const pacienteId = req.params.id;
   const { cedula, nombre, direccion, edad, telefono } = req.body;
 
-  Paciente.findByIdAndUpdate(
-    pacienteId,
-    { cedula, nombre, direccion, edad, telefono },
-    { new: true }
-  )
-    .then((paciente) => {
-      res.json(paciente);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Error al actualizar el paciente' });
-    });
+  Paciente.findOne({cedula})
+  .then((paciente) => {
+    if (paciente) {
+      if(paciente._id.toString() !== pacienteId) {
+        res.json({ error: 'Ya existe un paciente con esa cédula'});
+      } else {
+        Paciente.findByIdAndUpdate(
+          pacienteId,
+          { cedula, nombre, direccion, edad, telefono },
+          { new: true }
+        )
+          .then((paciente) => {
+            res.json(paciente);
+          })
+          .catch((error) => {
+            res.status(500).json({ error: 'Error al actualizar el paciente' });
+          });
+      }
+    } else {
+      Paciente.findByIdAndUpdate(
+        pacienteId,
+        { cedula, nombre, direccion, edad, telefono },
+        { new: true }
+      )
+        .then((paciente) => {
+          res.json(paciente);
+        })
+        .catch((error) => {
+          res.status(500).json({ error: 'Error al actualizar el paciente' });
+        });
+    }
+  }).catch((error) => {
+    return res.status(500).json({ error: 'Error al buscar numero de cédula existente' });
+  });
 };
 
 // Controlador para eliminar un paciente existente

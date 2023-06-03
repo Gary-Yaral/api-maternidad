@@ -1,4 +1,5 @@
 const Doctor = require('../models/doctorModel');
+const mongoose = require('mongoose')
 
 // Controlador para crear un nuevo doctor
 const crearDoctor = (req, res) => {
@@ -12,14 +13,23 @@ const crearDoctor = (req, res) => {
     telefono,
   });
 
-  nuevoDoctor
-    .save()
-    .then((doctor) => {
-      res.status(201).json(doctor);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Error al crear el doctor' });
-    });
+  Doctor.findOne({cedula})
+  .then((doctor) => {
+    if (doctor) {
+      res.json({ error: 'Ya existe un doctor con esa cédula'});
+    } else {
+      nuevoDoctor
+        .save()
+        .then((doctor) => {
+          res.status(201).json(doctor);
+        })
+        .catch((error) => {
+          res.status(500).json({ error: 'Error al crear el doctor' });
+        });
+    }
+  }).catch((error) => {
+    return res.status(500).json({ error: 'Error al buscar numero de cédula existente' });
+  });
 };
 
 // Controlador para obtener todos los doctores
@@ -56,17 +66,40 @@ const actualizarDoctor = (req, res) => {
   const doctorId = req.params.id;
   const { cedula, nombre, especialidad, experiencia, telefono } = req.body;
 
-  Doctor.findByIdAndUpdate(
-    doctorId,
-    { cedula, nombre, especialidad, experiencia, telefono },
-    { new: true }
-  )
-    .then((doctor) => {
-      res.json(doctor);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Error al actualizar el doctor' });
-    });
+  Doctor.findOne({cedula})
+  .then((doctor) => {
+    if (doctor) {
+      if(doctor._id.toString() !== doctorId) {
+        res.json({ error: 'Ya existe un doctor con esa cédula'});
+      } else {
+        Doctor.findByIdAndUpdate(
+          doctorId,
+          { cedula, nombre, especialidad, experiencia, telefono },
+          { new: true }
+        )
+          .then((doctor) => {
+            res.json(doctor);
+          })
+          .catch((error) => {
+            res.status(500).json({ error: 'Error al actualizar el doctor' });
+          });
+      }
+    } else {
+      Doctor.findByIdAndUpdate(
+        doctorId,
+        { cedula, nombre, especialidad, experiencia, telefono },
+        { new: true }
+      )
+        .then((doctor) => {
+          res.json(doctor);
+        })
+        .catch((error) => {
+          res.status(500).json({ error: 'Error al actualizar el doctor' });
+        });
+    }
+  }).catch((error) => {
+    return res.status(500).json({ error: 'Error al buscar numero de cédula existente' });
+  });
 };
 
 // Controlador para eliminar un doctor existente

@@ -1,5 +1,5 @@
 const Consulta = require('../models/consultaModel');
-
+const { validateToken } = require("../middleware/validateToken")
 const obtenerConsultas = (req, res) => {
   Consulta.find()
     .populate('paciente', 'nombre')

@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const controller = require('../controller/tiposPartoController');
-
-router.get("", controller.obtenerTodosTiposParto) 
+const { validateToken } = require("../middleware/validateToken")
+router.get("", validateToken, controller.obtenerTodosTiposParto) 
 
 module.exports = { router }

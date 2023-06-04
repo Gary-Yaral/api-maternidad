@@ -1,6 +1,7 @@
 const Acceso = require('../models/accesoModel')
 const { verifyPass } = require('../utils/handlePassword')
 const { createToken } = require('../utils/handleToken')
+const { ERROR_LOGIN_RESPONSE } = require('../utils/constants')
 
 // Obtener todos los accesos
 const obtenerAccesos = async (req, res) => {

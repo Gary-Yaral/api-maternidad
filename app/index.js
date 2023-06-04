@@ -3,7 +3,7 @@ const db = require("./mongo/db")
 const app = express()
 const cors = require("cors")
 const { router } = require("./routes/index")
-const { corsOptions} = require("./utils/constants")
+const { corsOptions } = require("./utils/constants")
 
 app.use(express.json())
 app.use(cors(corsOptions))
